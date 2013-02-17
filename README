@@ -4,7 +4,8 @@ NAME
 SYNOPSIS
     colorgpg --list-sigs [names]
     colorgpg --list-keys [names]
-    colorgpg -
+    colorgpg ---
+    colorgpg
 
 DESCRIPTION
     This program is a wrapper for the 'gpg' command to make the output
@@ -14,12 +15,17 @@ DESCRIPTION
     with --list-keys or --list-sigs and optional names specifying the keys. See
     'man gpg' for help.
     
-    The option - is used to read from stdin.
-        gpg --list-sigs | colorgpg -
+    The option --- is used to read from stdin (- will be forwarded to 'gpg' for
+    compatibility reasons). This way you can colorize e.g. previously stored
+    output of 'gpg'.
+        gpg --list-sigs > gpg.out; colorgpg --- < gpg.out
+
+    All other commands will be forwarded to 'gpg' without wrapping. This means
+    that you can use 'colorgpg' instead of 'gpg' for all actions and that colors
+    will be added if possible.
 
 AUTHOR
-    Written by Sven Karsten Greiner
-    http://www.sammyshp.de/
+    Written by Sven Karsten Greiner, http://www.sammyshp.de/
 
 COPYRIGHT
     Copyright (C) 2013 Sven Karsten Greiner (sven@sammyshp.de)

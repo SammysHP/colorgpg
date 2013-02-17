@@ -38,41 +38,48 @@ color_darkmagenta="\033[0;35m"
 color_darkblack="\033[0;30m"
 color_off="\033[0;0m"
 
+colorize_keylist () {
+    echo "$input" | while IFS= read -r line; do
+        if [[ $line =~ ^(pub.+)(\[.+\]) ]]; then
+            echo -en "$color_white"
+            echo -n "${BASH_REMATCH[1]}"
+            echo -en "$color_darkwhite"
+            echo "${BASH_REMATCH[2]}"
+        elif [[ $line =~ ^pub ]]; then
+            echo -en "$color_white"
+            echo "$line"
+        elif [[ $line =~ ^uid ]]; then
+            echo -en "$color_yellow"
+            echo "$line"
+        elif [[ $line =~ ^rev ]]; then
+            echo -en "$color_red"
+            echo "$line"
+        elif [[ $line =~ ^sub ]]; then
+            echo -en "$color_darkgreen"
+            echo "$line"
+        elif [[ $line =~ ^sig ]]; then
+            echo -en "$color_darkwhite"
+            echo "$line"
+        else
+            echo -en "$color_off"
+            echo "$line"
+        fi
+    done
+}
+
 case "$1" in
     "--list-keys" | "--list-sigs" | "--list-key" | "--list-sig" )
         input=$(gpg "$@")
+        statuscode=$?
+        colorize_keylist
+        exit $statuscode
         ;;
-    "-" )
+    "---" )
         input=$(cat)
+        colorize_keylist
+        exit 0
         ;;
     * )
-        echo "No wrapping implemented for this command." 1>&2
-        exit 1
+        gpg
+        exit $?
 esac
-
-echo "$input" | while IFS= read -r line; do
-    if [[ $line =~ ^(pub.+)(\[.+\]) ]]; then
-        echo -en "$color_white"
-        echo -n "${BASH_REMATCH[1]}"
-        echo -en "$color_darkwhite"
-        echo "${BASH_REMATCH[2]}"
-    elif [[ $line =~ ^pub ]]; then
-        echo -en "$color_white"
-        echo "$line"
-    elif [[ $line =~ ^uid ]]; then
-        echo -en "$color_yellow"
-        echo "$line"
-    elif [[ $line =~ ^rev ]]; then
-        echo -en "$color_red"
-        echo "$line"
-    elif [[ $line =~ ^sub ]]; then
-        echo -en "$color_darkgreen"
-        echo "$line"
-    elif [[ $line =~ ^sig ]]; then
-        echo -en "$color_darkwhite"
-        echo "$line"
-    else
-        echo -en "$color_off"
-        echo "$line"
-    fi
-done
