@@ -40,10 +40,14 @@ color_off="\033[0;0m"
 
 colorize_keylist () {
     echo "$input" | while IFS= read -r line; do
-        if [[ $line =~ ^(pub.+)(\[.+\]) ]]; then
+        if [[ $line =~ ^(pub.+)((\[.+)([0-9]{4}-[0-9]{2}-[0-9]{2})(\])) ]]; then
             echo -en "$color_white"
             echo -n "${BASH_REMATCH[1]}"
-            echo -en "$color_darkwhite"
+            if [[ $(date -d "${BASH_REMATCH[4]}" '+%s') < $(date '+%s') ]]; then
+                echo -en "$color_red"
+            else
+                echo -en "$color_darkwhite"
+            fi
             echo "${BASH_REMATCH[2]}"
         elif [[ $line =~ ^pub ]]; then
             echo -en "$color_white"
@@ -52,8 +56,17 @@ colorize_keylist () {
             echo -en "$color_yellow"
             echo "$line"
         elif [[ $line =~ ^rev ]]; then
-            echo -en "$color_red"
+            echo -en "$color_darkred"
             echo "$line"
+        elif [[ $line =~ ^(sub.+)((\[.+)([0-9]{4}-[0-9]{2}-[0-9]{2})(\])) ]]; then
+            echo -en "$color_darkgreen"
+            echo -n "${BASH_REMATCH[1]}"
+            if [[ $(date -d "${BASH_REMATCH[4]}" '+%s') < $(date '+%s') ]]; then
+                echo -en "$color_red"
+            else
+                echo -en "$color_darkwhite"
+            fi
+            echo "${BASH_REMATCH[2]}"
         elif [[ $line =~ ^sub ]]; then
             echo -en "$color_darkgreen"
             echo "$line"
@@ -65,6 +78,8 @@ colorize_keylist () {
             echo "$line"
         fi
     done
+
+    echo
 }
 
 case "$1" in
