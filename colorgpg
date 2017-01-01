@@ -40,7 +40,7 @@ color_off="\033[0;0m"
 
 colorize_keylist () {
     echo "$input" | while IFS= read -r line; do
-        if [[ $line =~ ^(pub.+)((\[.+)([0-9]{4}-[0-9]{2}-[0-9]{2})(\])) ]]; then
+        if [[ $line =~ ^(pub.+|sec.+)((\[.+)([0-9]{4}-[0-9]{2}-[0-9]{2})(\])) ]]; then
             echo -en "$color_white"
             echo -n "${BASH_REMATCH[1]}"
             if [[ $(date -d "${BASH_REMATCH[4]}" '+%s') < $(date '+%s') ]]; then
@@ -50,6 +50,9 @@ colorize_keylist () {
             fi
             echo "${BASH_REMATCH[2]}"
         elif [[ $line =~ ^pub ]]; then
+            echo -en "$color_white"
+            echo "$line"
+        elif [[ $line =~ ^sec ]]; then
             echo -en "$color_white"
             echo "$line"
         elif [[ $line =~ ^uid ]]; then
@@ -83,7 +86,7 @@ colorize_keylist () {
 }
 
 case "$1" in
-    "--list-keys" | "--list-sigs" | "--list-key" | "--list-sig" )
+    "-k" | "--list-key" | "--list-keys" | "--list-sig" | "--list-sigs" | "-K" | "--list-secret-key" | "--list-secret-keys" )
         input=$(gpg "$@")
         statuscode=$?
         colorize_keylist
@@ -95,6 +98,6 @@ case "$1" in
         exit 0
         ;;
     * )
-        gpg
+        gpg "$@"
         exit $?
 esac
